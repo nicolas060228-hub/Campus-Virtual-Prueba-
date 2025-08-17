@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Campus Virtual - Sistema de Gestión de Cursos</title>
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+            }
+
+            /* Estilos para la pantalla de login */
+            .auth-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 20px;
+            }
+            .auth-card {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 40px;
+                width: 100%;
+                max-width: 400px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+
+            .auth-logo {
+                font-size: 3rem;
+                color: #667eea;
+                margin-bottom: 10px;
+            }
+
+            .auth-title {
+                font-size: 1.8rem;
+                color: #333;
+                margin-bottom: 30px;
+                font-weight: 600;
+            }
+
+            .auth-tabs {
+                display: flex;
+                margin-bottom: 30px;
+                background: #f5f5f5;
+                border-radius: 10px;
+                padding: 5px;
+            }
+
+            .auth-tab {
+                flex: 1;
+                padding: 12px;
+                border: none;
+                background: none;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-weight: 500;
+            }
+
+            .auth-tab.active {
+                background: #667eea;
+                color: white;
+            }
+
+            .auth-form {
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+                text-align: left;
+            }
+
+            .form-label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 500;
+                color: #333;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 15px;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            }
+
+            .form-input:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            }
+
+            .btn-auth {
+                width: 100%;
+                padding: 15px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin-bottom: 15px;
+            }
+
+            .btn-auth:hover {
+                background: #5a6fd8;
+                transform: translateY(-2px);
+            }
+
+            .btn-auth:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .auth-message {
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .auth-message.success {
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .auth-message.error {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            .auth-message.warning {
+                background: #fff3cd;
+                color: #856404;
+                border: 1px solid #ffeaa7;
+            }
+
+            /* Estilos para el dashboard (cuando está logueado) */
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+                display: none; /* Oculto por defecto */
+            }
+
+            .header {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                padding: 20px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header h1 {
+                color: #333;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .user-email {
+                color: #666;
+                font-size: 14px;
+            }
+
+            .user-role {
+                background: #667eea;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .btn-logout {
+                padding: 8px 16px;
+                background: #ff6b6b;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s ease;
+            }
+
+            .btn-logout:hover {
+                background: #ff5252;
+            }
+
+            .search-container {
+                position: relative;
+                width: 300px;
+            }
+
+            .search-input {
+                width: 100%;
+                padding: 12px 45px 12px 15px;
+                border: 2px solid #e0e0e0;
+                border-radius: 25px;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            }
+
+            .search-input:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+            }
+
+            .search-btn {
+                position: absolute;
+                right: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: #667eea;
+                color: white;
+                border: none;
+                width: 35px;
+                height: 35px;
+                border-radius: 50%;
+                cursor: pointer;
+                transition: background 0.3s ease;
+            }
+
+            .search-btn:hover {
+                background: #5a6fd8;
+            }
+
+            .controls {
+                display: flex;
+                gap: 15px;
+                margin-bottom: 30px;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .btn-primary {
+                background: #667eea;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background: #5a6fd8;
+                transform: translateY(-2px);
+            }
+
+            .btn-secondary {
+                background: rgba(255, 255, 255, 0.9);
+                color: #333;
+                border: 1px solid #ddd;
+            }
+
+            .btn-secondary:hover {
+                background: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .btn-success {
+                background: #28a745;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #218838;
+            }
+
+            .btn-warning {
+                background: #ffc107;
+                color: #333;
+            }
+
+            .btn-warning:hover {
+                background: #e0a800;
+            }
+
+            /* Vista de Secciones - Solo para Docentes */
+            .sections-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 25px;
+                margin-bottom: 30px;
+            }
+
+            .section-card {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 0;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                transition: all 0.3s ease;
+                overflow: hidden;
+                cursor: pointer;
+            }
+
+            .section-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 40px rgba(31, 38, 135, 0.5);
+            }
+
+            .section-header {
+                height: 120px;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .section-header.seccion-a {
+                background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            }
+
+            .section-header.seccion-b {
+                background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            }
+
+            .section-header.seccion-c {
+                background: linear-gradient(135deg, #f093fb, #f5576c);
+            }
+
+            .section-icon {
+                font-size: 2.5rem;
+                opacity: 0.9;
+            }
+
+            .section-count {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(5px);
+                padding: 8px 12px;
+                border-radius: 15px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .section-content {
+                padding: 20px;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 8px;
+            }
+
+            .section-subtitle {
+                color: #666;
+                font-size: 16px;
+                margin-bottom: 12px;
+            }
+
+            .section-description {
+                color: #888;
+                font-size: 14px;
+                line-height: 1.4;
+            }
+
+            /* Vista de Lista de Alumnos */
+            .students-view {
+                display: none;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .students-header {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                padding: 25px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .students-header h2 {
+                color: #333;
+                font-size: 1.8rem;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .back-btn {
+                background: #6c757d;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .back-btn:hover {
+                background: #5a6268;
+            }
+
+            .students-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+
+            .student-card {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                transition: all 0.3s ease;
+                cursor: pointer;
+                text-align: center;
+            }
+
+            .student-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 12px 40px rgba(31, 38, 135, 0.5);
+            }
+
+            .student-avatar {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 15px;
+                color: white;
+                font-size: 2rem;
+            }
+
+            .student-name {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 8px;
+            }
+
+            .student-email {
+                color: #666;
+                font-size: 14px;
+                margin-bottom: 15px;
+            }
+
+            .student-stats {
+                display: flex;
+                justify-content: space-between;
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid #eee;
+            }
+
+            .stat-item {
+                text-align: center;
+                flex: 1;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: #667eea;
+            }
+
+            .stat-label {
+                font-size: 12px;
+                color: #888;
+                margin-top: 4px;
+            }
+
+            /* Vista de Gestión de Alumno Individual */
+            .student-management {
+                display: none;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .student-info-header {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                padding: 25px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            }
+
+            .student-info-title {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+
+            .student-info-title h2 {
+                color: #333;
+                font-size: 1.8rem;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .student-details-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+            }
+
+            .student-detail-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #666;
+                font-size: 14px;
+            }
+
+            .management-tabs {
+                display: flex;
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .management-tab {
+                flex: 1;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .management-tab.active {
+                background: #667eea;
+                color: white;
+            }
+
+            .management-content {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 25px;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            }
+
+            /* Tabla de notas */
+            .notas-table {
+                overflow-x: auto;
+            }
+
+            .notas-table table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 15px;
+            }
+
+            .notas-table th,
+            .notas-table td {
+                padding: 12px;
+                text-align: center;
+                border: 1px solid #ddd;
+            }
+
+            .notas-table th {
+                background: #667eea;
+                color: white;
+                font-weight: 600;
+            }
+
+            .notas-table tr:nth-child(even) {
+                background: #f8f9fa;
+            }
+
+            .notas-table tr:hover {
+                background: #e8f0fe;
+            }
+
+            .nota-input {
+                width: 60px;
+                padding: 4px 8px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                text-align: center;
+            }
+
+            .nota-promedio {
+                background: #e8f5e8 !important;
+                font-weight: 600;
+            }
+
+            .nota-final {
+                background: #667eea !important;
+                color: white;
+                font-weight: 700;
+            }
+
+            /* Tareas del alumno */
+            .student-tasks {
+                display: grid;
+                gap: 15px;
+            }
+
+            .task-item {
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                border-left: 4px solid #667eea;
+            }
+
+            .task-header {
+                display: flex;
+                justify-content: between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+
+            .task-title {
+                font-weight: 600;
+                color: #333;
+            }
+
+            .task-status {
+                padding: 4px 8px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 500;
+                margin-left: auto;
+            }
+
+            .task-status.entregada {
+                background: #d4edda;
+                color: #155724;
+            }
+
+            .task-status.pendiente {
+                background: #fff3cd;
+                color: #856404;
+            }
+
+            .task-status.vencida {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+            .task-description {
+                color: #666;
+                font-size: 14px;
+                margin-bottom: 10px;
+            }
+
+            .task-file {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #667eea;
+                font-size: 14px;
+            }
+
+            .courses-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 25px;
+                margin-bottom: 30px;
+            }
+
+            .course-card {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-radius: 15px;
+                padding: 0;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                transition: all 0.3s ease;
+                overflow: hidden;
+                cursor: pointer;
+            }
+
+            .course-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 40px rgba(31, 38, 135, 0.5);
+            }
+
+            .course-header {
+                height: 120px;
+                background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+            }
+
+            .course-header.administracion {
+                background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            }
+
+            .course-header.matematicas {
+                background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            }
+
+            .course-header.contabilidad {
+                background: linear-gradient(135deg, #45b7d1, #96c93d);
+            }
+
+            .course-header.ingenieria {
+                background: linear-gradient(135deg, #f093fb, #f5576c);
+            }
+
+            .course-header.estadistica {
+                background: linear-gradient(135deg, #4facfe, #00f2fe);
+            }
+
+            .course-header.fisica {
+                background: linear-gradient(135deg, #43e97b, #38f9d7);
+            }
+
+            .course-icon {
+                font-size: 2.5rem;
+                opacity: 0.9;
+            }
+
+            .course-modal {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: rgba(255, 255, 255, 0.2);
+                backdrop-filter: blur(5px);
+                padding: 8px 12px;
+                border-radius: 15px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            .course-content {
+                padding: 20px;
+            }
+
+            .course-code {
+                color: #667eea;
+                font-weight: 700;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .course-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 12px;
+                line-height: 1.4;
+            }
+
+            .course-professor {
+                color: #666;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+
+            .course-category {
+                display: inline-block;
+                background: #667eea;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 15px;
+                font-size: 12px;
+                font-weight: 500;
+            }
+
+            /* === NUEVOS ESTILOS PARA VISTA DE DETALLE DEL CURSO (ALUMNOS) === */
+            
+            /* Vista de Detalle del Curso (Para Alumnos) */
+            .course-detail-view {
+                display: none;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .course-detail-header {
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                padding: 25px;
+                border-radius: 15px;
+                margin-bottom: 30px;
+                box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .course-detail-info h2 {
+                color: #333;
+                font-size: 1.8rem;
+                display: flex;
+                align-items: center;
+                gap: 15px;
+                margin-bottom: 10px;
+            }
+
+            .course-detail-subtitle {
+                color: #666;
+                font-size: 16px;
+            }
+
+            .course-tabs {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 30px;
+                flex-wrap: wrap;
+            }
+
+            .course-tab {
+                flex: 1;
+                min-width: 150px;
+                padding: 15px 20px;
+                background: rgba(255, 255, 255, 0.9);
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .course-tab.active {
+                background: #667eea;
+                color: white;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            }
+
+            .course-tab:hover:not(.active) {
+                background: white;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            /* Mis Notas */
+            .my-grades-container {
+                display: grid;
+                gap: 20px;
+            }
+
+            .grade-category {
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 12px;
+                border-left: 4px solid #667eea;
+            }
+
+            .grade-category h4 {
+                color: #333;
+                margin-bottom: 15px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .grades-row {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 15px;
+                margin-bottom: 15px;
+            }
+
+            .grade-item {
+                background: white;
+                padding: 15px;
+                border-radius: 8px;
+                text-align: center;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .grade-value {
+                font-size: 1.5rem;
+                font-weight: 700;
+                color: #667eea;
+                margin-bottom: 5px;
+            }
+
+            .grade-label {
+                font-size: 12px;
+                color: #666;
+                text-transform: uppercase;
+            }
+
+            .final-average {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                text-align: center;
+                margin-top: 20px;
+            }
+
+            .final-average h3 {
+                margin-bottom: 10px;
+                font-size: 1.2rem;
+            }
+
+            .final-average .grade-value {
+                font-size: 3rem;
+                color: white;
+                margin-bottom: 5px;
+            }
+
+            /* Mis Tareas */
+            .my-tasks-container {
+                display: grid;
+                gap: 20px;
+            }
+
+            .task-status-filter {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            .filter-btn {
+                padding: 8px 16px;
+                border: 2px solid #e0e0e0;
+                background: white;
+                border-radius: 20px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: all 0.3s ease;
+            }
+
+            .filter-btn.active {
+                background: #667eea;
+                color: white;
+                border-color: #667eea;
+            }
+
+            .task-card {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-left: 4px solid #667eea;
+                transition: all 0.3s ease;
+            }
+
+            .task-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            }
+
+            .task-card.pendiente {
+                border-left-color: #ffc107;
+            }
+
+            .task-card.vencida {
+                border-left-color: #dc3545;
+            }
+
+            .task-card.entregada {
+                border-left-color: #28a745;
+            }
+
+            .task-due-date {
+                background: #f8f9fa;
+                padding: 8px 12px;
+                border-radius: 6px;
+                font-size: 13px;
+                color: #666;
+                margin: 10px 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .upload-area {
+                border: 2px dashed #ddd;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+                margin-top: 15px;
+                transition: all 0.3s ease;
+            }
+
+            .upload-area:hover {
+                border-color: #667eea;
+                background: #f8f9ff;
+            }
+
+            .upload-area input[type="file"] {
+                display: none;
+            }
+
+            .upload-btn {
+                background: #667eea;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background 0.3s ease;
+            }
+
+            .upload-btn:hover {
+                background: #5a6fd8;
+            }
+
+            /* Progreso del Curso */
+            .progress-container {
+                display: grid;
+                gap: 25px;
+            }
+
+            .progress-overview {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .progress-card {
+                background: linear-gradient(135deg, #667eea, #764ba2);
+                color: white;
+                padding: 20px;
+                border-radius: 12px;
+                text-align: center;
+            }
+
+            .progress-card.assignments {
+                background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            }
+
+            .progress-card.attendance {
+                background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            }
+
+            .progress-card.participation {
+                background: linear-gradient(135deg, #45b7d1, #96c93d);
+            }
+
+            .progress-number {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+
+            .progress-label {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+
+            .progress-chart {
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            }
+
+            .progress-bar-container {
+                margin: 20px 0;
+            }
+
+            .progress-bar-label {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 8px;
+                font-size: 14px;
+                font-weight: 500;
+            }
+
+            .progress-bar {
+                background: #e9ecef;
+                border-radius: 10px;
+                overflow: hidden;
+                height: 12px;
+            }
+
+            .progress-fill {
+                background: linear-gradient(90deg, #667eea, #764ba2);
+                height: 100%;
+                border-radius: 10px;
+                transition: width 0.8s ease;
+            }
+
+            /* Observaciones */
+            .observations-container {
+                display: grid;
+                gap: 15px;
+            }
+
+            .observation-item {
+                background: white;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                border-left: 4px solid #667eea;
+            }
+
+            .observation-date {
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 10px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .observation-text {
+                color: #333;
+                line-height: 1.6;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                color: #666;
+            }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 20px;
+                opacity: 0.5;
+            }
+
+            .loading {
+                text-align: center;
+                padding: 40px;
+                color: #666;
+            }
+
+            .loading i {
+                font-size: 2rem;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+
+            .hidden {
+                display: none !important;
+            }
+
+            @media (max-width: 768px) {
+                .auth-card {
+                    margin: 20px;
+                    padding: 30px 20px;
+                }
+
+                .header {
+                    flex-direction: column;
+                    gap: 20px;
+                }
+
+                .search-container {
+                    width: 100%;
+                }
+
+                .controls {
+                    flex-wrap: wrap;
+                }
+
+                .courses-grid,
+                .sections-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .students-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .student-info-title,
+                .students-header {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+
+                .management-tabs {
+                    flex-direction: column;
+                }
+
+                .student-details-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .course-detail-header {
+                    flex-direction: column;
+                    gap: 20px;
+                    text-align: center;
+                }
+
+                .course-tabs {
+                    flex-direction: column;
+                }
+
+                .course-tab {
+                    min-width: unset;
+                }
+
+                .grades-row {
+                    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                }
+
+                .progress-overview {
+                    grid-template-columns: 1fr;
+                }
+
+                .task-status-filter {
+                    justify-content: center;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Pantalla de Autenticación -->
+        <div id="authContainer" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h1 class="auth-title">Campus Virtual</h1>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Iniciar Sesión</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Registrarse</button>
+                </div>
+
+                <div id="authMessage"></div>
+
+                <!-- Formulario de Login -->
+                <form id="loginForm" class="auth-form">
+                    <div class="form-group">
+                        <label class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-input" id="loginEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-input" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn-auth" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+                    </button>
+                </form>
+
+                <!-- Formulario de Registro -->
+                <form id="registerForm" class="auth-form hidden">
+                    <div class="form-group">
+                        <label class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-input" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-input" id="registerPassword" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Confirmar Contraseña</label>
+                        <input type="password" class="form-input" id="confirmPassword" minlength="6" required>
+                    </div>
+                    <button type="submit" class="btn-auth" id="registerBtn">
+                        <i class="fas fa-user-plus"></i> Registrarse
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Principal -->
+        <div id="dashboardContainer" class="container">
+            <header class="header">
+                <h1><i class="fas fa-graduation-cap"></i> Campus Virtual</h1>
+                <div class="search-container">
+                    <input type="text" class="search-input" id="searchInput" placeholder="Buscar...">
+                    <button class="search-btn" onclick="buscarContenido()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div class="user-info">
+                    <span class="user-role" id="userRole">Usuario</span>
+                    <span class="user-email" id="userEmail"></span>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </header>
+
+            <!-- Vista para Docentes - Secciones del Curso -->
+            <div id="sectionsContainer" class="sections-grid" style="display: none;">
+                <!-- Se llena dinámicamente -->
+            </div>
+
+            <!-- Vista para Alumnos - Cursos -->
+            <div id="coursesContainer" class="courses-grid">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Cargando...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de Lista de Alumnos (Solo Docentes) -->
+        <div id="studentsView" class="students-view">
+            <div class="students-header">
+                <h2 id="studentsViewTitle">
+                    <i class="fas fa-users"></i>
+                    <span id="sectionName">Sección A</span>
+                </h2>
+                <button class="back-btn" onclick="volverASecciones()">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+            </div>
+            
+            <div id="studentsContainer" class="students-grid">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Vista de Gestión de Alumno Individual (Solo Docentes) -->
+        <div id="studentManagement" class="student-management">
+            <div class="student-info-header">
+                <div class="student-info-title">
+                    <h2 id="studentManagementTitle">
+                        <i class="fas fa-user-graduate"></i>
+                        <span id="studentName">Nombre del Alumno</span>
+                    </h2>
+                    <button class="back-btn" onclick="volverAAlumnos()">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </button>
+                </div>
+                <div class="student-details-grid" id="studentDetailsGrid">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <div class="management-tabs">
+                <button class="management-tab active" onclick="switchManagementTab('notas')">
+                    <i class="fas fa-clipboard-list"></i> Notas
+                </button>
+                <button class="management-tab" onclick="switchManagementTab('tareas')">
+                    <i class="fas fa-tasks"></i> Tareas
+                </button>
+                <button class="management-tab" onclick="switchManagementTab('observaciones')">
+                    <i class="fas fa-comments"></i> Observaciones
+                </button>
+            </div>
+
+            <div class="management-content">
+                <!-- Contenido de Notas -->
+                <div id="notasContent" class="tab-content">
+                    <div class="notas-table">
+                        <h3>Registro de Calificaciones</h3>
+                        <table id="tablaNotasAlumno">
+                            <thead>
+                                <tr>
+                                    <th>Evaluación</th>
+                                    <th>Nota 1</th>
+                                    <th>Nota 2</th>
+                                    <th>Nota 3</th>
+                                    <th>Nota 4</th>
+                                    <th>Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaNotasAlumnoBody">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Contenido de Tareas -->
+                <div id="tareasContent" class="tab-content hidden">
+                    <h3>Tareas del Alumno</h3>
+                    <div id="studentTasksContainer" class="student-tasks">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Contenido de Observaciones -->
+                <div id="observacionesContent" class="tab-content hidden">
+                    <h3>Observaciones del Alumno</h3>
+                    <div id="studentObservacionesContainer">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <h4>Agregar Nueva Observación</h4>
+                        <textarea id="nuevaObservacionAlumno" class="form-input" rows="4" placeholder="Escribe una observación para este alumno..."></textarea>
+                        <button class="btn btn-primary" onclick="agregarObservacionAlumno()" style="margin-top: 10px;">
+                            <i class="fas fa-plus"></i> Agregar Observación
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NUEVA VISTA: Detalle del Curso (Solo Alumnos) -->
+        <div id="courseDetailView" class="course-detail-view">
+            <div class="course-detail-header">
+                <div class="course-detail-info">
+                    <h2 id="courseDetailTitle">
+                        <i class="fas fa-book-open"></i>
+                        <span id="courseDetailName">Nombre del Curso</span>
+                    </h2>
+                    <div class="course-detail-subtitle" id="courseDetailSubtitle">
+                        Profesor: <span id="courseDetailProfessor">Nombre del Profesor</span>
+                    </div>
+                </div>
+                <button class="back-btn" onclick="volverACursos()">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </button>
+            </div>
+
+            <div class="course-tabs">
+                <button class="course-tab active" onclick="switchCourseTab('notas')">
+                    <i class="fas fa-chart-line"></i> Mis Notas
+                </button>
+                <button class="course-tab" onclick="switchCourseTab('tareas')">
+                    <i class="fas fa-tasks"></i> Mis Tareas
+                </button>
+                <button class="course-tab" onclick="switchCourseTab('progreso')">
+                    <i class="fas fa-chart-bar"></i> Mi Progreso
+                </button>
+                <button class="course-tab" onclick="switchCourseTab('observaciones')">
+                    <i class="fas fa-comments"></i> Observaciones
+                </button>
+            </div>
+
+            <div class="course-content">
+                <!-- Contenido de Notas -->
+                <div id="notasStudentContent" class="tab-content">
+                    <h3 style="margin-bottom: 25px; color: #333;">
+                        <i class="fas fa-clipboard-list"></i> Mis Calificaciones
+                    </h3>
+                    <div id="myGradesContainer" class="my-grades-container">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Contenido de Tareas -->
+                <div id="tareasStudentContent" class="tab-content hidden">
+                    <h3 style="margin-bottom: 25px; color: #333;">
+                        <i class="fas fa-tasks"></i> Mis Tareas
+                    </h3>
+                    <div class="task-status-filter">
+                        <button class="filter-btn active" onclick="filtrarTareas('todas')">Todas</button>
+                        <button class="filter-btn" onclick="filtrarTareas('pendiente')">Pendientes</button>
+                        <button class="filter-btn" onclick="filtrarTareas('entregada')">Entregadas</button>
+                        <button class="filter-btn" onclick="filtrarTareas('vencida')">Vencidas</button>
+                    </div>
+                    <div id="myTasksContainer" class="my-tasks-container">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Contenido de Progreso -->
+                <div id="progresoStudentContent" class="tab-content hidden">
+                    <h3 style="margin-bottom: 25px; color: #333;">
+                        <i class="fas fa-chart-bar"></i> Mi Progreso Académico
+                    </h3>
+                    <div class="progress-overview">
+                        <div class="progress-card">
+                            <div class="progress-number" id="averageGrade">16.5</div>
+                            <div class="progress-label">Promedio General</div>
+                        </div>
+                        <div class="progress-card assignments">
+                            <div class="progress-number" id="completedTasks">8/10</div>
+                            <div class="progress-label">Tareas Completadas</div>
+                        </div>
+                        <div class="progress-card attendance">
+                            <div class="progress-number" id="attendanceRate">95%</div>
+                            <div class="progress-label">Asistencia</div>
+                        </div>
+                        <div class="progress-card participation">
+                            <div class="progress-number" id="participationScore">18</div>
+                            <div class="progress-label">Participación</div>
+                        </div>
+                    </div>
+                    <div class="progress-chart">
+                        <h4 style="margin-bottom: 20px;">Evolución de Notas</h4>
+                        <div id="progressBarsContainer">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenido de Observaciones -->
+                <div id="observacionesStudentContent" class="tab-content hidden">
+                    <h3 style="margin-bottom: 25px; color: #333;">
+                        <i class="fas fa-comments"></i> Observaciones del Profesor
+                    </h3>
+                    <div id="myObservationsContainer" class="observations-container">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Sistema de usuarios predefinidos
+            let usuarios = [
+                // Alumnos (se registran automáticamente como alumnos)
+                { email: 'alumno1@ejemplo.com', password: '123456', tipo: 'alumno', nombre: 'Juan Pérez' },
+                { email: 'alumno2@ejemplo.com', password: '123456', tipo: 'alumno', nombre: 'María García' },
+                { email: 'alumno3@ejemplo.com', password: '123456', tipo: 'alumno', nombre: 'Carlos López' },
+                { email: 'alumno4@ejemplo.com', password: '123456', tipo: 'alumno', nombre: 'Ana Martínez' },
+                { email: 'alumno5@ejemplo.com', password: '123456', tipo: 'alumno', nombre: 'Pedro Rodríguez' },
+                { email: 'alumno6@ejemplo.com', password: '123456', tipo: 'alumno', nombre: 'Laura Sánchez' },
+                
+                // Docentes (correos especiales con permisos de docente)
+                { 
+                    email: 'milton.herrera@campus.edu', 
+                    password: 'docente123', 
+                    tipo: 'docente', 
+                    nombre: 'Milton Herrera',
+                    curso: 'Administración Empresarial',
+                    codigo: 'ADM001'
+                },
+                { 
+                    email: 'nilton.salazar@campus.edu', 
+                    password: 'docente123', 
+                    tipo: 'docente', 
+                    nombre: 'Nilton Salazar',
+                    curso: 'Cálculo Diferencial',
+                    codigo: 'MAT001'
+                },
+                { 
+                    email: 'jorge.sanchez@campus.edu', 
+                    password: 'docente123', 
+                    tipo: 'docente', 
+                    nombre: 'Jorge Sánchez',
+                    curso: 'Contabilidad I',
+                    codigo: 'CON001'
+                }
+            ];
+
+            // Secciones por curso (para docentes)
+            let seccionesPorCurso = {
+                'ADM001': [
+                    { 
+                        id: 'seccion-a', 
+                        nombre: 'Sección A', 
+                        estudiantes: ['alumno1@ejemplo.com', 'alumno2@ejemplo.com'],
+                        descripcion: 'Horario: Lunes y Miércoles 8:00-10:00 AM'
+                    },
+                    { 
+                        id: 'seccion-b', 
+                        nombre: 'Sección B', 
+                        estudiantes: ['alumno3@ejemplo.com', 'alumno4@ejemplo.com'],
+                        descripcion: 'Horario: Martes y Jueves 10:00-12:00 PM'
+                    },
+                    { 
+                        id: 'seccion-c', 
+                        nombre: 'Sección C', 
+                        estudiantes: ['alumno5@ejemplo.com', 'alumno6@ejemplo.com'],
+                        descripcion: 'Horario: Viernes 2:00-6:00 PM'
+                    }
+                ],
+                'MAT001': [
+                    { 
+                        id: 'seccion-a', 
+                        nombre: 'Sección A', 
+                        estudiantes: ['alumno1@ejemplo.com', 'alumno3@ejemplo.com'],
+                        descripcion: 'Horario: Lunes y Miércoles 10:00-12:00 PM'
+                    },
+                    { 
+                        id: 'seccion-b', 
+                        nombre: 'Sección B', 
+                        estudiantes: ['alumno2@ejemplo.com', 'alumno4@ejemplo.com'],
+                        descripcion: 'Horario: Martes y Jueves 8:00-10:00 AM'
+                    },
+                    { 
+                        id: 'seccion-c', 
+                        nombre: 'Sección C', 
+                        estudiantes: ['alumno5@ejemplo.com', 'alumno6@ejemplo.com'],
+                        descripcion: 'Horario: Viernes 8:00-12:00 PM'
+                    }
+                ],
+                'CON001': [
+                    { 
+                        id: 'seccion-a', 
+                        nombre: 'Sección A', 
+                        estudiantes: ['alumno1@ejemplo.com', 'alumno4@ejemplo.com'],
+                        descripcion: 'Horario: Lunes y Miércoles 2:00-4:00 PM'
+                    },
+                    { 
+                        id: 'seccion-b', 
+                        nombre: 'Sección B', 
+                        estudiantes: ['alumno2@ejemplo.com', 'alumno5@ejemplo.com'],
+                        descripcion: 'Horario: Martes y Jueves 2:00-4:00 PM'
+                    },
+                    { 
+                        id: 'seccion-c', 
+                        nombre: 'Sección C', 
+                        estudiantes: ['alumno3@ejemplo.com', 'alumno6@ejemplo.com'],
+                        descripción: 'Horario: Sábados 8:00-12:00 PM'
+                    }
+                ]
+            };
+
+            // Datos de cursos para alumnos
+            let cursosData = [
+                {
+                    id: 1,
+                    codigo: "ADM001", 
+                    nombre: "Administración Empresarial", 
+                    profesor: "Milton Herrera", 
+                    modalidad: "Virtual", 
+                    categoria: "ADMINISTRACIÓN", 
+                    descripcion: "Curso de fundamentos administrativos",
+                    ciclo: "2025 - Ciclo 2 Agosto PREG (001)"
+                },
+                {
+                    id: 2,
+                    codigo: "MAT001", 
+                    nombre: "Cálculo Diferencial", 
+                    profesor: "Nilton Salazar", 
+                    modalidad: "Presencial", 
+                    categoria: "MATEMÁTICAS", 
+                    descripcion: "Matemáticas aplicadas",
+                    ciclo: "2025 - Ciclo 2 Agosto PREG (001)"
+                },
+                {
+                    id: 3,
+                    codigo: "CON001", 
+                    nombre: "Contabilidad I", 
+                    profesor: "Jorge Sánchez", 
+                    modalidad: "Presencial", 
+                    categoria: "CONTABILIDAD", 
+                    descripcion: "Introducción a la contabilidad",
+                    ciclo: "2025 - Ciclo 1 Marzo PREG (001)"
+                }
+            ];
+
+            // Datos de notas por alumno y curso
+            let notasData = {
+                'alumno1@ejemplo.com': {
+                    'ADM001': {
+                        examenMensual: [15, 16, 14, 17],
+                        examenBimestral: [16, 15],
+                        pc1: [18, 17, 16, 15],
+                        pc2: [17, 18, 16, 17],
+                        participacion: [18, 17, 16, 18]
+                    },
+                    'MAT001': {
+                        examenMensual: [14, 15, 13, 16],
+                        pc1: [16, 17, 15, 14],
+                        participacion: [16, 15, 14, 16]
+                    },
+                    'CON001': {
+                        examenMensual: [17, 18, 16, 17],
+                        pc1: [18, 17, 18, 16],
+                        participacion: [17, 18, 17, 17]
+                    }
+                },
+                'alumno2@ejemplo.com': {
+                    'ADM001': {
+                        examenMensual: [16, 17, 15, 18],
+                        pc1: [17, 16, 18, 17],
+                        participacion: [17, 18, 17, 16]
+                    }
+                },
+                'alumno3@ejemplo.com': {
+                    'ADM001': {
+                        examenMensual: [15, 14, 16, 15],
+                        pc1: [16, 15, 17, 16],
+                        participacion: [16, 15, 17, 16]
+                    }
+                }
+                // ... más datos para otros alumnos
+            };
+
+            // Datos de tareas por alumno y curso
+            let tareasData = {
+                'alumno1@ejemplo.com': {
+                    'ADM001': [
+                        {
+                            id: 1,
+                            titulo: 'Ensayo sobre Gestión',
+                            descripcion: 'Redactar ensayo de 500 palabras sobre principios de gestión empresarial',
+                            fechaVencimiento: '2025-08-20T23:59',
+                            estado: 'entregada',
+                            archivo: 'ensayo_gestion.pdf'
+                        },
+                        {
+                            id: 2,
+                            titulo: 'Análisis de Caso',
+                            descripcion: 'Analizar caso empresarial propuesto en clase',
+                            fechaVencimiento: '2025-08-25T23:59',
+                            estado: 'pendiente',
+                            archivo: null
+                        }
+                    ],
+                    'MAT001': [
+                        {
+                            id: 3,
+                            titulo: 'Ejercicios de Derivadas',
+                            descripcion: 'Resolver los ejercicios del capítulo 3',
+                            fechaVencimiento: '2025-08-18T23:59',
+                            estado: 'vencida',
+                            archivo: null
+                        }
+                    ]
+                }
+            };
+
+            // Observaciones por alumno y curso
+            let observacionesData = {
+                'alumno1@ejemplo.com': {
+                    'ADM001': [
+                        { fecha: '2025-08-10', texto: 'Excelente participación en clase y comprensión de los temas' },
+                        { fecha: '2025-08-05', texto: 'Mejorar puntualidad en entregas de tareas' }
+                    ],
+                    'MAT001': [
+                        { fecha: '2025-08-12', texto: 'Buen manejo de conceptos matemáticos básicos' }
+                    ]
+                }
+            };
+
+            let currentUser = null;
+            let currentSection = null;
+            let currentStudent = null;
+            let currentCourse = null;
+            let currentTaskFilter = 'todas';
+
+            // Funciones de autenticación
+            function switchTab(tab) {
+                const loginForm = document.getElementById('loginForm');
+                const registerForm = document.getElementById('registerForm');
+                const tabs = document.querySelectorAll('.auth-tab');
+
+                tabs.forEach(t => t.classList.remove('active'));
+
+                if (tab === 'login') {
+                    loginForm.classList.remove('hidden');
+                    registerForm.classList.add('hidden');
+                    tabs[0].classList.add('active');
+                } else {
+                    loginForm.classList.add('hidden');
+                    registerForm.classList.remove('hidden');
+                    tabs[1].classList.add('active');
+                }
+
+                clearAuthMessage();
+            }
+
+            function showAuthMessage(message, type = 'error') {
+                const messageDiv = document.getElementById('authMessage');
+                messageDiv.innerHTML = `<div class="auth-message ${type}">${message}</div>`;
+            }
+
+            function clearAuthMessage() {
+                document.getElementById('authMessage').innerHTML = '';
+            }
+
+            // Login
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const loginBtn = document.getElementById('loginBtn');
+
+                loginBtn.disabled = true;
+                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
+
+                setTimeout(() => {
+                    const usuario = usuarios.find(u => 
+                        u.email === email && u.password === password
+                    );
+
+                    if (usuario) {
+                        currentUser = usuario;
+                        showAuthMessage('Inicio de sesión exitoso', 'success');
+                        
+                        setTimeout(() => {
+                            document.getElementById('authContainer').style.display = 'none';
+                            document.getElementById('dashboardContainer').style.display = 'block';
+                            document.getElementById('userEmail').textContent = usuario.email;
+                            document.getElementById('userRole').textContent = 
+                                usuario.tipo === 'docente' ? 'Docente' : 'Alumno';
+                            
+                            if (usuario.tipo === 'docente') {
+                                cargarSeccionesDocente();
+                            } else {
+                                cargarCursosAlumno();
+                            }
+                        }, 1000);
+                    } else {
+                        showAuthMessage('Credenciales incorrectas', 'error');
+                    }
+
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+                }, 1000);
+            });
+
+            // Registro (solo como alumno)
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const registerBtn = document.getElementById('registerBtn');
+
+                if (password !== confirmPassword) {
+                    showAuthMessage('Las contraseñas no coinciden', 'error');
+                    return;
+                }
+
+                if (password.length < 6) {
+                    showAuthMessage('La contraseña debe tener al menos 6 caracteres', 'error');
+                    return;
+                }
+
+                if (usuarios.find(u => u.email === email)) {
+                    showAuthMessage('Este correo ya está registrado', 'error');
+                    return;
+                }
+
+                registerBtn.disabled = true;
+                registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+
+                setTimeout(() => {
+                    // Extraer nombre del email
+                    const nombre = email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                    
+                    usuarios.push({ 
+                        email, 
+                        password, 
+                        tipo: 'alumno', // Solo se registran como alumnos
+                        nombre 
+                    });
+                    
+                    showAuthMessage('Cuenta creada exitosamente. Ya puedes iniciar sesión como alumno.', 'success');
+                    
+                    document.getElementById('registerForm').reset();
+                    setTimeout(() => {
+                        switchTab('login');
+                    }, 2000);
+
+                    registerBtn.disabled = false;
+                    registerBtn.innerHTML = '<i class="fas fa-user-plus"></i> Registrarse';
+                }, 1000);
+            });
+
+            function logout() {
+                currentUser = null;
+                currentSection = null;
+                currentStudent = null;
+                currentCourse = null;
+                
+                // Ocultar todas las vistas
+                document.getElementById('authContainer').style.display = 'flex';
+                document.getElementById('dashboardContainer').style.display = 'none';
+                document.getElementById('studentsView').style.display = 'none';
+                document.getElementById('studentManagement').style.display = 'none';
+                document.getElementById('courseDetailView').style.display = 'none';
+                
+                document.getElementById('loginForm').reset();
+                document.getElementById('registerForm').reset();
+                clearAuthMessage();
+                showAuthMessage('Sesión cerrada exitosamente', 'success');
+            }
+
+            // Cargar contenido para docentes - Secciones
+            function cargarSeccionesDocente() {
+                const sectionsContainer = document.getElementById('sectionsContainer');
+                const coursesContainer = document.getElementById('coursesContainer');
+                
+                sectionsContainer.style.display = 'grid';
+                coursesContainer.style.display = 'none';
+
+                const secciones = seccionesPorCurso[currentUser.codigo] || [];
+                
+                sectionsContainer.innerHTML = secciones.map((seccion, index) => {
+                    const clases = ['seccion-a', 'seccion-b', 'seccion-c'];
+                    const iconos = ['fa-users', 'fa-user-graduate', 'fa-chalkboard-teacher'];
+                    
+                    return `
+                        <div class="section-card" onclick="verAlumnosSeccion('${seccion.id}')">
+                            <div class="section-header ${clases[index]}">
+                                <i class="fas ${iconos[index]} section-icon"></i>
+                                <div class="section-count">${seccion.estudiantes.length} estudiantes</div>
+                            </div>
+                            <div class="section-content">
+                                <div class="section-title">${seccion.nombre}</div>
+                                <div class="section-subtitle">${currentUser.curso}</div>
+                                <div class="section-description">${seccion.descripcion}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Cargar contenido para alumnos - Cursos
+            function cargarCursosAlumno() {
+                const sectionsContainer = document.getElementById('sectionsContainer');
+                const coursesContainer = document.getElementById('coursesContainer');
+                
+                sectionsContainer.style.display = 'none';
+                coursesContainer.style.display = 'grid';
+
+                setTimeout(() => {
+                    coursesContainer.innerHTML = cursosData.map(curso => {
+                        const categoria = curso.categoria?.toLowerCase().replace(/í/g, 'i').replace(/ó/g, 'o').replace(/á/g, 'a').replace(/é/g, 'e').replace(/ú/g, 'u') || 'ingenieria';
+                        const icono = obtenerIconoCategoria(curso.categoria);
+
+                        return `
+                            <div class="course-card" onclick="verDetalleCurso('${curso.id}')">
+                                <div class="course-header ${categoria}">
+                                    <i class="fas ${icono} course-icon"></i>
+                                    <div class="course-modal">${curso.modalidad || 'Presencial'}</div>
+                                </div>
+                                <div class="course-content">
+                                    <div class="course-code">${curso.codigo || 'N/A'}</div>
+                                    <div class="course-title">${curso.nombre || 'Sin título'}</div>
+                                    <div class="course-professor">
+                                        <i class="fas fa-user"></i>
+                                        ${curso.profesor || 'Sin asignar'}
+                                    </div>
+                                    <div class="course-category">${curso.categoria || 'GENERAL'}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }, 500);
+            }
+
+            function obtenerIconoCategoria(categoria) {
+                const iconos = {
+                    'ADMINISTRACIÓN': 'fa-briefcase',
+                    'MATEMÁTICAS': 'fa-calculator',
+                    'CONTABILIDAD': 'fa-chart-bar',
+                    'INGENIERÍA': 'fa-cogs',
+                    'ESTADÍSTICA': 'fa-chart-line',
+                    'FÍSICA': 'fa-atom'
+                };
+                return iconos[categoria] || 'fa-book';
+            }
+
+            // === NUEVAS FUNCIONES PARA VISTA DE DETALLE DEL CURSO (ALUMNOS) ===
+            
+            function verDetalleCurso(cursoId) {
+                if (currentUser.tipo !== 'alumno') return;
+
+                const curso = cursosData.find(c => c.id == cursoId);
+                if (!curso) return;
+
+                currentCourse = curso;
+
+                document.getElementById('dashboardContainer').style.display = 'none';
+                document.getElementById('courseDetailView').style.display = 'block';
+
+                document.getElementById('courseDetailName').textContent = curso.nombre;
+                document.getElementById('courseDetailProfessor').textContent = curso.profesor;
+
+                // Mostrar contenido inicial (notas)
+                switchCourseTab('notas');
+            }
+
+            function switchCourseTab(tab) {
+                const tabs = document.querySelectorAll('.course-tab');
+                const contents = document.querySelectorAll('#courseDetailView .tab-content');
+
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+
+                document.querySelector(`[onclick="switchCourseTab('${tab}')"]`).classList.add('active');
+                document.getElementById(`${tab}StudentContent`).classList.remove('hidden');
+
+                switch(tab) {
+                    case 'notas':
+                        mostrarMisNotas();
+                        break;
+                    case 'tareas':
+                        mostrarMisTareas();
+                        break;
+                    case 'progreso':
+                        mostrarMiProgreso();
+                        break;
+                    case 'observaciones':
+                        mostrarMisObservaciones();
+                        break;
+                }
+            }
+
+            function mostrarMisNotas() {
+                if (!currentCourse || !currentUser) return;
+
+                const notas = notasData[currentUser.email] && notasData[currentUser.email][currentCourse.codigo] || {};
+                const container = document.getElementById('myGradesContainer');
+
+                const evaluaciones = [
+                    { nombre: 'Exámenes Mensuales', key: 'examenMensual', icon: 'fa-file-alt' },
+                    { nombre: 'Exámenes Bimestrales', key: 'examenBimestral', icon: 'fa-clipboard-check' },
+                    { nombre: 'Práctica Calificada 1', key: 'pc1', icon: 'fa-pencil-alt' },
+                    { nombre: 'Práctica Calificada 2', key: 'pc2', icon: 'fa-pencil-alt' },
+                    { nombre: 'Participación', key: 'participacion', icon: 'fa-comments' }
+                ];
+
+                let promediosGenerales = [];
+                
+                let html = evaluaciones.map(evaluacion => {
+                    const notasEval = notas[evaluacion.key] || [];
+                    const promedio = notasEval.length > 0 ? 
+                        (notasEval.reduce((a, b) => a + b, 0) / notasEval.length) : 0;
+
+                    if (promedio > 0) {
+                        promediosGenerales.push(promedio);
+                    }
+
+                    return `
+                        <div class="grade-category">
+                            <h4><i class="fas ${evaluacion.icon}"></i> ${evaluacion.nombre}</h4>
+                            <div class="grades-row">
+                                ${notasEval.map((nota, index) => `
+                                    <div class="grade-item">
+                                        <div class="grade-value">${nota}</div>
+                                        <div class="grade-label">Nota ${index + 1}</div>
+                                    </div>
+                                `).join('')}
+                                ${promedio > 0 ? `
+                                    <div class="grade-item" style="background: #e8f5e8;">
+                                        <div class="grade-value" style="color: #28a745;">${promedio.toFixed(1)}</div>
+                                        <div class="grade-label">Promedio</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                const promedioFinal = promediosGenerales.length > 0 ? 
+                    (promediosGenerales.reduce((a, b) => a + b, 0) / promediosGenerales.length) : 0;
+
+                html += `
+                    <div class="final-average">
+                        <h3>Promedio Final del Curso</h3>
+                        <div class="grade-value">${promedioFinal.toFixed(1)}</div>
+                        <div class="grade-label">de 20 puntos</div>
+                    </div>
+                `;
+
+                container.innerHTML = html || '<div class="empty-state"><i class="fas fa-chart-line"></i><h4>No hay calificaciones disponibles</h4><p>Las notas aparecerán aquí cuando el profesor las registre.</p></div>';
+            }
+
+            function mostrarMisTareas() {
+                if (!currentCourse || !currentUser) return;
+
+                const tareas = tareasData[currentUser.email] && tareasData[currentUser.email][currentCourse.codigo] || [];
+                mostrarTareasFiltradas(tareas);
+            }
+
+            function mostrarTareasFiltradas(tareas) {
+                const container = document.getElementById('myTasksContainer');
+
+                let tareasFiltradas = tareas;
+                if (currentTaskFilter !== 'todas') {
+                    tareasFiltradas = tareas.filter(tarea => {
+                        const fechaVenc = new Date(tarea.fechaVencimiento);
+                        const ahora = new Date();
+                        let estado = tarea.estado;
+                        
+                        if (tarea.estado === 'pendiente' && fechaVenc < ahora) {
+                            estado = 'vencida';
+                        }
+                        
+                        return estado === currentTaskFilter;
+                    });
+                }
+
+                if (tareasFiltradas.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-tasks"></i><h4>No hay tareas</h4><p>No se encontraron tareas para el filtro seleccionado.</p></div>';
+                    return;
+                }
+
+                container.innerHTML = tareasFiltradas.map(tarea => {
+                    const fechaVenc = new Date(tarea.fechaVencimiento);
+                    const ahora = new Date();
+                    let estado = tarea.estado;
+                    
+                    if (tarea.estado === 'pendiente' && fechaVenc < ahora) {
+                        estado = 'vencida';
+                    }
+
+                    const estadoTexto = {
+                        'pendiente': 'Pendiente',
+                        'entregada': 'Entregada',
+                        'vencida': 'Vencida'
+                    };
+
+                    const estadoIcono = {
+                        'pendiente': 'fa-clock',
+                        'entregada': 'fa-check-circle',
+                        'vencida': 'fa-times-circle'
+                    };
+
+                    return `
+                        <div class="task-card ${estado}">
+                            <div class="task-title">
+                                <span>${tarea.titulo}</span>
+                                <span class="task-status ${estado}">
+                                    <i class="fas ${estadoIcono[estado]}"></i>
+                                    ${estadoTexto[estado]}
+                                </span>
+                            </div>
+                            <div class="task-description">${tarea.descripcion}</div>
+                            <div class="task-due-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                Fecha límite: ${fechaVenc.toLocaleDateString('es-ES', { 
+                                    weekday: 'long', 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric' 
+                                })}
+                            </div>
+                            ${estado === 'entregada' && tarea.archivo ? `
+                                <div style="background: #d4edda; color: #155724; padding: 12px; border-radius: 6px; margin-top: 15px;">
+                                    <i class="fas fa-file-check"></i>
+                                    <strong>Entregado:</strong> ${tarea.archivo}
+                                </div>
+                            ` : ''}
+                            ${estado === 'pendiente' ? `
+                                <div class="upload-area" onclick="document.getElementById('file-${tarea.id}').click()">
+                                    <input type="file" id="file-${tarea.id}" onchange="entregarTarea(${tarea.id}, this.files[0])">
+                                    <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: #667eea; margin-bottom: 10px;"></i>
+                                    <p>Click aquí para subir tu archivo</p>
+                                    <button class="upload-btn">
+                                        <i class="fas fa-upload"></i> Seleccionar Archivo
+                                    </button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function mostrarMiProgreso() {
+                if (!currentCourse || !currentUser) return;
+
+                // Calcular estadísticas
+                const notas = notasData[currentUser.email] && notasData[currentUser.email][currentCourse.codigo] || {};
+                const tareas = tareasData[currentUser.email] && tareasData[currentUser.email][currentCourse.codigo] || [];
+
+                const promedio = calcularPromedioAlumno(currentUser.email, currentCourse.codigo);
+                const tareasEntregadas = contarTareasEntregadas(currentUser.email, currentCourse.codigo);
+                const totalTareas = contarTotalTareas(currentUser.email, currentCourse.codigo);
+
+                // Actualizar tarjetas de resumen
+                document.getElementById('averageGrade').textContent = promedio.toFixed(1);
+                document.getElementById('completedTasks').textContent = `${tareasEntregadas}/${totalTareas}`;
+                document.getElementById('attendanceRate').textContent = '95%'; // Valor fijo por ahora
+                
+                // Calcular promedio de participación
+                const participacion = notas.participacion || [];
+                const promedioParticipacion = participacion.length > 0 ? 
+                    (participacion.reduce((a, b) => a + b, 0) / participacion.length) : 0;
+                document.getElementById('participationScore').textContent = promedioParticipacion.toFixed(1);
+
+                // Mostrar barras de progreso
+                const progressContainer = document.getElementById('progressBarsContainer');
+                const evaluaciones = [
+                    { nombre: 'Exámenes Mensuales', key: 'examenMensual' },
+                    { nombre: 'Prácticas Calificadas', key: 'pc1' },
+                    { nombre: 'Participación', key: 'participacion' }
+                ];
+
+                progressContainer.innerHTML = evaluaciones.map(eval => {
+                    const notasEval = notas[eval.key] || [];
+                    const promedio = notasEval.length > 0 ? 
+                        (notasEval.reduce((a, b) => a + b, 0) / notasEval.length) : 0;
+                    const porcentaje = (promedio / 20) * 100;
+
+                    return `
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-label">
+                                <span>${eval.nombre}</span>
+                                <span><strong>${promedio.toFixed(1)} / 20</strong></span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: ${porcentaje}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function mostrarMisObservaciones() {
+                if (!currentCourse || !currentUser) return;
+
+                const observaciones = observacionesData[currentUser.email] && 
+                                     observacionesData[currentUser.email][currentCourse.codigo] || [];
+                const container = document.getElementById('myObservationsContainer');
+
+                if (observaciones.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-comments"></i><h4>No hay observaciones</h4><p>Tu profesor aún no ha registrado observaciones para ti.</p></div>';
+                    return;
+                }
+
+                container.innerHTML = observaciones.map(obs => `
+                    <div class="observation-item">
+                        <div class="observation-date">
+                            <i class="fas fa-calendar"></i>
+                            ${new Date(obs.fecha).toLocaleDateString('es-ES', { 
+                                weekday: 'long', 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            })}
+                        </div>
+                        <div class="observation-text">${obs.texto}</div>
+                    </div>
+                `).join('');
+            }
+
+            function filtrarTareas(filtro) {
+                currentTaskFilter = filtro;
+                
+                // Actualizar botones activos
+                const buttons = document.querySelectorAll('.filter-btn');
+                buttons.forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                // Refiltrar tareas
+                const tareas = tareasData[currentUser.email] && tareasData[currentUser.email][currentCourse.codigo] || [];
+                mostrarTareasFiltradas(tareas);
+            }
+
+            function entregarTarea(tareaId, archivo) {
+                if (!archivo) return;
+
+                // Simular entrega de tarea
+                const tareas = tareasData[currentUser.email][currentCourse.codigo];
+                const tarea = tareas.find(t => t.id === tareaId);
+                
+                if (tarea) {
+                    tarea.estado = 'entregada';
+                    tarea.archivo = archivo.name;
+                    mostrarTareasFiltradas(tareas);
+                    mostrarMensaje('Tarea entregada correctamente');
+                }
+            }
+
+            function volverACursos() {
+                document.getElementById('courseDetailView').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                currentCourse = null;
+            }
+
+            // Ver alumnos de una sección (solo docentes)
+            function verAlumnosSeccion(seccionId) {
+                if (currentUser.tipo !== 'docente') return;
+
+                const secciones = seccionesPorCurso[currentUser.codigo] || [];
+                currentSection = secciones.find(s => s.id === seccionId);
+                
+                if (!currentSection) return;
+
+                document.getElementById('dashboardContainer').style.display = 'none';
+                document.getElementById('studentsView').style.display = 'block';
+                
+                document.getElementById('sectionName').textContent = currentSection.nombre;
+                
+                const studentsContainer = document.getElementById('studentsContainer');
+                
+                studentsContainer.innerHTML = currentSection.estudiantes.map(email => {
+                    const alumno = usuarios.find(u => u.email === email);
+                    if (!alumno) return '';
+
+                    // Calcular estadísticas del alumno
+                    const notasAlumno = notasData[email] || {};
+                    const tareasAlumno = tareasData[email] || {};
+                    
+                    const promedioGeneral = calcularPromedioAlumno(email, currentUser.codigo);
+                    const tareasEntregadas = contarTareasEntregadas(email, currentUser.codigo);
+                    const totalTareas = contarTotalTareas(email, currentUser.codigo);
+
+                    return `
+                        <div class="student-card" onclick="gestionarAlumno('${email}')">
+                            <div class="student-avatar">
+                                ${alumno.nombre.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </div>
+                            <div class="student-name">${alumno.nombre}</div>
+                            <div class="student-email">${alumno.email}</div>
+                            <div class="student-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${promedioGeneral.toFixed(1)}</div>
+                                    <div class="stat-label">Promedio</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${tareasEntregadas}/${totalTareas}</div>
+                                    <div class="stat-label">Tareas</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Gestionar alumno individual (solo docentes)
+            function gestionarAlumno(email) {
+                if (currentUser.tipo !== 'docente') return;
+
+                const alumno = usuarios.find(u => u.email === email);
+                if (!alumno) return;
+
+                currentStudent = email;
+
+                document.getElementById('studentsView').style.display = 'none';
+                document.getElementById('studentManagement').style.display = 'block';
+                
+                document.getElementById('studentName').textContent = alumno.nombre;
+                
+                // Llenar detalles del estudiante
+                const detailsGrid = document.getElementById('studentDetailsGrid');
+                const promedioGeneral = calcularPromedioAlumno(email, currentUser.codigo);
+                const tareasEntregadas = contarTareasEntregadas(email, currentUser.codigo);
+                const totalTareas = contarTotalTareas(email, currentUser.codigo);
+
+                detailsGrid.innerHTML = `
+                    <div class="student-detail-item">
+                        <i class="fas fa-envelope"></i>
+                        <span><strong>Email:</strong> ${alumno.email}</span>
+                    </div>
+                    <div class="student-detail-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span><strong>Curso:</strong> ${currentUser.curso}</span>
+                    </div>
+                    <div class="student-detail-item">
+                        <i class="fas fa-users"></i>
+                        <span><strong>Sección:</strong> ${currentSection.nombre}</span>
+                    </div>
+                    <div class="student-detail-item">
+                        <i class="fas fa-chart-line"></i>
+                        <span><strong>Promedio:</strong> ${promedioGeneral.toFixed(1)}</span>
+                    </div>
+                    <div class="student-detail-item">
+                        <i class="fas fa-tasks"></i>
+                        <span><strong>Tareas:</strong> ${tareasEntregadas}/${totalTareas}</span>
+                    </div>
+                `;
+
+                // Mostrar contenido inicial (notas)
+                switchManagementTab('notas');
+            }
+
+            // Cambiar entre pestañas de gestión
+            function switchManagementTab(tab) {
+                const tabs = document.querySelectorAll('.management-tab');
+                const contents = document.querySelectorAll('.tab-content');
+
+                tabs.forEach(t => t.classList.remove('active'));
+                contents.forEach(c => c.classList.add('hidden'));
+
+                document.querySelector(`[onclick="switchManagementTab('${tab}')"]`).classList.add('active');
+                document.getElementById(`${tab}Content`).classList.remove('hidden');
+
+                switch(tab) {
+                    case 'notas':
+                        mostrarNotasAlumno();
+                        break;
+                    case 'tareas':
+                        mostrarTareasAlumno();
+                        break;
+                    case 'observaciones':
+                        mostrarObservacionesAlumno();
+                        break;
+                }
+            }
+
+            // Mostrar notas del alumno
+            function mostrarNotasAlumno() {
+                if (!currentStudent) return;
+
+                const notas = notasData[currentStudent] && notasData[currentStudent][currentUser.codigo] || {};
+                const tbody = document.getElementById('tablaNotasAlumnoBody');
+
+                function calcularPromedio(array) {
+                    if (!array || array.length === 0) return 0;
+                    return (array.reduce((a, b) => a + b, 0) / array.length).toFixed(1);
+                }
+
+                const evaluaciones = [
+                    { nombre: 'Examen Mensual', key: 'examenMensual' },
+                    { nombre: 'Examen Bimestral', key: 'examenBimestral' },
+                    { nombre: 'PC1', key: 'pc1' },
+                    { nombre: 'PC2', key: 'pc2' },
+                    { nombre: 'Participación', key: 'participacion' }
+                ];
+
+                let html = '';
+                let promediosGenerales = [];
+
+                evaluaciones.forEach(evaluacion => {
+                    const notasEval = notas[evaluacion.key] || [];
+                    const promedio = calcularPromedio(notasEval);
+                    
+                    if (promedio > 0) {
+                        promediosGenerales.push(parseFloat(promedio));
+                    }
+
+                    html += `<tr>
+                        <td><strong>${evaluacion.nombre}</strong></td>
+                        <td><input type="number" class="nota-input" value="${notasEval[0] || ''}" 
+                             onchange="actualizarNotaAlumno('${evaluacion.key}', 0, this.value)" min="0" max="20"></td>
+                        <td><input type="number" class="nota-input" value="${notasEval[1] || ''}" 
+                             onchange="actualizarNotaAlumno('${evaluacion.key}', 1, this.value)" min="0" max="20"></td>
+                        <td><input type="number" class="nota-input" value="${notasEval[2] || ''}" 
+                             onchange="actualizarNotaAlumno('${evaluacion.key}', 2, this.value)" min="0" max="20"></td>
+                        <td><input type="number" class="nota-input" value="${notasEval[3] || ''}" 
+                             onchange="actualizarNotaAlumno('${evaluacion.key}', 3, this.value)" min="0" max="20"></td>
+                        <td class="nota-promedio">${promedio > 0 ? promedio : '-'}</td>
+                    </tr>`;
+                });
+
+                const promedioFinal = promediosGenerales.length > 0 ? 
+                    (promediosGenerales.reduce((a, b) => a + b, 0) / promediosGenerales.length).toFixed(1) : 0;
+
+                html += `<tr class="nota-final">
+                    <td><strong>PROMEDIO FINAL</strong></td>
+                    <td colspan="4" style="text-align: center;"><strong>Calculado automáticamente</strong></td>
+                    <td><strong>${promedioFinal}</strong></td>
+                </tr>`;
+
+                tbody.innerHTML = html;
+            }
+
+            // Actualizar nota del alumno
+            function actualizarNotaAlumno(evaluacion, indice, valor) {
+                if (!currentStudent || currentUser.tipo !== 'docente') return;
+
+                if (!notasData[currentStudent]) {
+                    notasData[currentStudent] = {};
+                }
+
+                if (!notasData[currentStudent][currentUser.codigo]) {
+                    notasData[currentStudent][currentUser.codigo] = {};
+                }
+
+                if (!notasData[currentStudent][currentUser.codigo][evaluacion]) {
+                    notasData[currentStudent][currentUser.codigo][evaluacion] = [];
+                }
+
+                const nota = parseFloat(valor);
+                if (!isNaN(nota) && nota >= 0 && nota <= 20) {
+                    notasData[currentStudent][currentUser.codigo][evaluacion][indice] = nota;
+                    mostrarNotasAlumno(); // Refrescar la vista
+                    mostrarMensaje('Nota actualizada correctamente');
+                }
+            }
+
+            // Mostrar tareas del alumno
+            function mostrarTareasAlumno() {
+                if (!currentStudent) return;
+
+                const tareas = tareasData[currentStudent] && tareasData[currentStudent][currentUser.codigo] || [];
+                const container = document.getElementById('studentTasksContainer');
+
+                if (tareas.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No hay tareas registradas para este alumno.</p>';
+                } else {
+                    container.innerHTML = tareas.map(tarea => {
+                        const fechaVenc = new Date(tarea.fechaVencimiento);
+                        const ahora = new Date();
+                        let estadoClase = tarea.estado;
+                        
+                        if (tarea.estado === 'pendiente' && fechaVenc < ahora) {
+                            estadoClase = 'vencida';
+                        }
+
+                        return `
+                            <div class="task-item">
+                                <div class="task-header">
+                                    <h4 class="task-title">${tarea.titulo}</h4>
+                                    <span class="task-status ${estadoClase}">
+                                        ${estadoClase === 'pendiente' ? 'Pendiente' : 
+                                          estadoClase === 'entregada' ? 'Entregada' : 'Vencida'}
+                                    </span>
+                                </div>
+                                <p class="task-description">${tarea.descripcion}</p>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                    <small style="color: #666;">
+                                        <i class="fas fa-calendar"></i>
+                                        Vencimiento: ${fechaVenc.toLocaleDateString('es-ES')}
+                                    </small>
+                                    ${tarea.archivo ? `
+                                        <div class="task-file">
+                                            <i class="fas fa-file"></i>
+                                            ${tarea.archivo}
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // Mostrar observaciones del alumno
+            function mostrarObservacionesAlumno() {
+                if (!currentStudent) return;
+
+                const observaciones = observacionesData[currentStudent] && observacionesData[currentStudent][currentUser.codigo] || [];
+                const container = document.getElementById('studentObservacionesContainer');
+
+                if (observaciones.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">No hay observaciones para este alumno.</p>';
+                } else {
+                    container.innerHTML = observaciones.map(obs => `
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; margin-bottom: 15px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">
+                                ${new Date(obs.fecha).toLocaleDateString('es-ES')}
+                            </div>
+                            <div>${obs.texto}</div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // Agregar observación al alumno
+            function agregarObservacionAlumno() {
+                if (!currentStudent || currentUser.tipo !== 'docente') return;
+
+                const texto = document.getElementById('nuevaObservacionAlumno').value.trim();
+                if (!texto) {
+                    mostrarError('Por favor, escribe una observación');
+                    return;
+                }
+
+                if (!observacionesData[currentStudent]) {
+                    observacionesData[currentStudent] = {};
+                }
+
+                if (!observacionesData[currentStudent][currentUser.codigo]) {
+                    observacionesData[currentStudent][currentUser.codigo] = [];
+                }
+
+                observacionesData[currentStudent][currentUser.codigo].unshift({
+                    fecha: new Date().toISOString().split('T')[0],
+                    texto: texto
+                });
+
+                document.getElementById('nuevaObservacionAlumno').value = '';
+                mostrarObservacionesAlumno();
+                mostrarMensaje('Observación agregada correctamente');
+            }
+
+            // Funciones auxiliares
+            function calcularPromedioAlumno(email, codigoCurso) {
+                const notas = notasData[email] && notasData[email][codigoCurso] || {};
+                let promediosGenerales = [];
+
+                Object.keys(notas).forEach(key => {
+                    const notasEval = notas[key];
+                    if (notasEval && notasEval.length > 0) {
+                        const promedio = notasEval.reduce((a, b) => a + b, 0) / notasEval.length;
+                        promediosGenerales.push(promedio);
+                    }
+                });
+
+                return promediosGenerales.length > 0 ? 
+                    promediosGenerales.reduce((a, b) => a + b, 0) / promediosGenerales.length : 0;
+            }
+
+            function contarTareasEntregadas(email, codigoCurso) {
+                const tareas = tareasData[email] && tareasData[email][codigoCurso] || [];
+                return tareas.filter(t => t.estado === 'entregada').length;
+            }
+
+            function contarTotalTareas(email, codigoCurso) {
+                const tareas = tareasData[email] && tareasData[email][codigoCurso] || [];
+                return tareas.length;
+            }
+
+            // Navegación
+            function volverASecciones() {
+                document.getElementById('studentsView').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                currentSection = null;
+            }
+
+            function volverAAlumnos() {
+                document.getElementById('studentManagement').style.display = 'none';
+                document.getElementById('studentsView').style.display = 'block';
+                currentStudent = null;
+            }
+
+            function buscarContenido() {
+                const termino = document.getElementById('searchInput').value.toLowerCase();
+                // Implementar búsqueda según el tipo de usuario
+                if (currentUser.tipo === 'docente') {
+                    // Buscar en alumnos si está en vista de estudiantes
+                    if (document.getElementById('studentsView').style.display === 'block') {
+                        buscarAlumnos(termino);
+                    }
+                } else {
+                    // Buscar en cursos para alumnos
+                    buscarCursos(termino);
+                }
+            }
+
+            function buscarAlumnos(termino) {
+                if (!currentSection || !termino) {
+                    verAlumnosSeccion(currentSection.id);
+                    return;
+                }
+
+                const estudiantesFiltrados = currentSection.estudiantes.filter(email => {
+                    const alumno = usuarios.find(u => u.email === email);
+                    return alumno && (
+                        alumno.nombre.toLowerCase().includes(termino) ||
+                        alumno.email.toLowerCase().includes(termino)
+                    );
+                });
+
+                const studentsContainer = document.getElementById('studentsContainer');
+                studentsContainer.innerHTML = estudiantesFiltrados.map(email => {
+                    const alumno = usuarios.find(u => u.email === email);
+                    if (!alumno) return '';
+
+                    const promedioGeneral = calcularPromedioAlumno(email, currentUser.codigo);
+                    const tareasEntregadas = contarTareasEntregadas(email, currentUser.codigo);
+                    const totalTareas = contarTotalTareas(email, currentUser.codigo);
+
+                    return `
+                        <div class="student-card" onclick="gestionarAlumno('${email}')">
+                            <div class="student-avatar">
+                                ${alumno.nombre.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </div>
+                            <div class="student-name">${alumno.nombre}</div>
+                            <div class="student-email">${alumno.email}</div>
+                            <div class="student-stats">
+                                <div class="stat-item">
+                                    <div class="stat-value">${promedioGeneral.toFixed(1)}</div>
+                                    <div class="stat-label">Promedio</div>
+                                </div>
+                                <div class="stat-item">
+                                    <div class="stat-value">${tareasEntregadas}/${totalTareas}</div>
+                                    <div class="stat-label">Tareas</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function buscarCursos(termino) {
+                if (!termino) {
+                    cargarCursosAlumno();
+                    return;
+                }
+
+                const cursosFiltrados = cursosData.filter(curso =>
+                    curso.nombre?.toLowerCase().includes(termino) ||
+                    curso.codigo?.toLowerCase().includes(termino) ||
+                    curso.profesor?.toLowerCase().includes(termino)
+                );
+
+                const coursesContainer = document.getElementById('coursesContainer');
+                coursesContainer.innerHTML = cursosFiltrados.map(curso => {
+                    const categoria = curso.categoria?.toLowerCase().replace(/í/g, 'i').replace(/ó/g, 'o').replace(/á/g, 'a').replace(/é/g, 'e').replace(/ú/g, 'u') || 'ingenieria';
+                    const icono = obtenerIconoCategoria(curso.categoria);
+
+                    return `
+                        <div class="course-card" onclick="verDetalleCurso('${curso.id}')">
+                            <div class="course-header ${categoria}">
+                                <i class="fas ${icono} course-icon"></i>
+                                <div class="course-modal">${curso.modalidad || 'Presencial'}</div>
+                            </div>
+                            <div class="course-content">
+                                <div class="course-code">${curso.codigo || 'N/A'}</div>
+                                <div class="course-title">${curso.nombre || 'Sin título'}</div>
+                                <div class="course-professor">
+                                    <i class="fas fa-user"></i>
+                                    ${curso.profesor || 'Sin asignar'}
+                                </div>
+                                <div class="course-category">${curso.categoria || 'GENERAL'}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Función para mostrar mensajes toast
+            function mostrarMensaje(mensaje) {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #4CAF50;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    z-index: 3000;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    animation: slideIn 0.3s ease;
+                `;
+                toast.textContent = mensaje;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+
+            function mostrarError(mensaje) {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #f44336;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    z-index: 3000;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                    animation: slideIn 0.3s ease;
+                `;
+                toast.textContent = mensaje;
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+
+            // Event listeners
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchInput = document.getElementById('searchInput');
+                if (searchInput) {
+                    searchInput.addEventListener('input', buscarContenido);
+                }
+            });
+
+            // Hacer las funciones globales
+            window.switchTab = switchTab;
+            window.showAuthMessage = showAuthMessage;
+            window.clearAuthMessage = clearAuthMessage;
+            window.logout = logout;
+            window.buscarContenido = buscarContenido;
+            window.verAlumnosSeccion = verAlumnosSeccion;
+            window.gestionarAlumno = gestionarAlumno;
+            window.switchManagementTab = switchManagementTab;
+            window.volverASecciones = volverASecciones;
+            window.volverAAlumnos = volverAAlumnos;
+            window.actualizarNotaAlumno = actualizarNotaAlumno;
+            window.agregarObservacionAlumno = agregarObservacionAlumno;
+            window.verDetalleCurso = verDetalleCurso;
+            window.switchCourseTab = switchCourseTab;
+            window.filtrarTareas = filtrarTareas;
+            window.entregarTarea = entregarTarea;
+            window.volverACursos = volverACursos;
+        </script>
+    </body>
+</html>
